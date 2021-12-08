@@ -2,9 +2,9 @@ import logging
 import os
 from time import sleep
 
-from myco_api_client.matchers import RedisBaseMatcher
-from myco_api_client.matchers.base_matcher import BaseMatcher
-from myco_api_client.matching_algorithms import BESTMatchingAlgorithm
+from gsy_myco_sdk.matchers import RedisBaseMatcher
+from gsy_myco_sdk.matchers.base_matcher import BaseMatcher
+from gsy_myco_sdk.matching_algorithms import BESTMatchingAlgorithm
 
 if os.environ["MYCO_CLIENT_RUN_ON_REDIS"] == "true":
     base_matcher = RedisBaseMatcher
@@ -30,6 +30,7 @@ class MycoMatcherBest(base_matcher):
         print(matching_data)
         recommendations = BESTMatchingAlgorithm.get_matches_recommendations(
             matching_data)
+        print("\n")
         print(recommendations)
         if recommendations:
             logging.info("Submitting %s recommendations.", len(recommendations))
