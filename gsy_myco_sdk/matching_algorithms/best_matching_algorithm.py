@@ -1,7 +1,11 @@
 from typing import Dict, List
+import json
 
 from gsy_framework.data_classes import BidOfferMatch
 from gsy_framework.matching_algorithms import BaseMatchingAlgorithm, PayAsBidMatchingAlgorithm
+from market_wrapper import PayAsBidMatchingAlgorithm as PaB
+
+debug = False
 
 
 class BESTMatchingAlgorithm(BaseMatchingAlgorithm):
@@ -14,6 +18,7 @@ class BESTMatchingAlgorithm(BaseMatchingAlgorithm):
     def get_matches_recommendations(
             cls, matching_data: Dict[str, Dict]) -> List[BidOfferMatch.serializable_dict]:
         recommendations = []
+        simply_match = []
         for market_id, time_slot_data in matching_data.items():
             for time_slot, data in time_slot_data.items():
                 bids_mapping = {bid["id"]: bid for bid in data.get("bids") or []}
@@ -22,10 +27,24 @@ class BESTMatchingAlgorithm(BaseMatchingAlgorithm):
                 if not (bids_mapping and offers_mapping):
                     continue
 
-                # Residual matching
-                recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(
+                # own Pay as Bid
+                simply_match.extend(PaB.get_matches_recommendations(
+                    {market_id: {time_slot: {
+                        "bids": bids_mapping.values(),
+                        "offers": offers_mapping.values()}}})
+                )
+
+                if debug:
+                    # GSY integrated Pay as Bid for comparison
+                    recommendations.extend(PayAsBidMatchingAlgorithm.get_matches_recommendations(
                         {market_id: {time_slot: {
                             "bids": bids_mapping.values(),
                             "offers": offers_mapping.values()}}})
+                    )
 
-        return recommendations
+                    with open(f'PaB_{time_slot}_gsy.json', 'w') as f:
+                        json.dump(recommendations, f, indent=2)
+                    with open(f'PaB_{time_slot}_simply.json', 'w') as f:
+                        json.dump(simply_match, f, indent=2)
+
+        return simply_match

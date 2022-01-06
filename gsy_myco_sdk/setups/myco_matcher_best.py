@@ -1,6 +1,7 @@
 import logging
 import os
 from time import sleep
+import json
 
 from gsy_myco_sdk.matchers import RedisBaseMatcher
 from gsy_myco_sdk.matchers.base_matcher import BaseMatcher
@@ -10,6 +11,8 @@ if os.environ["MYCO_CLIENT_RUN_ON_REDIS"] == "true":
     base_matcher = RedisBaseMatcher
 else:
     base_matcher = BaseMatcher
+
+debug = True
 
 
 class MycoMatcherBest(base_matcher):
@@ -27,11 +30,13 @@ class MycoMatcherBest(base_matcher):
         matching_data = data.get("bids_offers")
         if not matching_data:
             return
-        print(matching_data)
         recommendations = BESTMatchingAlgorithm.get_matches_recommendations(
             matching_data)
-        print("\n")
-        print(recommendations)
+        if debug:
+            print(json.dumps(matching_data, indent=2))
+            print("\n")
+            print(json.dumps(recommendations, indent=2))
+
         if recommendations:
             logging.info("Submitting %s recommendations.", len(recommendations))
             self.submit_matches(recommendations)
