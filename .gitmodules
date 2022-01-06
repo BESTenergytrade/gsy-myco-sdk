@@ -1,0 +1,3 @@
+[submodule "simply"]
+	path = simply
+	url = git@github.com:BESTenergytrade/simply.git
