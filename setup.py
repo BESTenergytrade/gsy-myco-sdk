@@ -15,8 +15,6 @@ try:
         REQUIREMENTS.extend(
             ["gsy-framework @ "
              f"git+https://github.com/gridsingularity/gsy-framework.git@{BRANCH}"])
-    with open("simply/requirements.txt") as simply_req:
-        REQUIREMENTS.extend(simply_req)
 
 except OSError:
     # Shouldn't happen
