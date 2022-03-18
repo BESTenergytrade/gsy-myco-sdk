@@ -19,12 +19,17 @@ class MycoMatcherBest(base_matcher):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_finished = False
+        self.matched = False
+        # At which slot completion is the matching triggered in percent
+        self.match_slot_at = 80
 
     def on_market_cycle(self, data):
-        pass
+        self.matched = False
 
     def on_tick(self, data):
-        self.request_offers_bids(filters={})
+        if not self.matched and int(data.get("slot_completion")[:-1]) >= self.match_slot_at:
+            self.request_offers_bids(filters={})
+            self.matched = True
 
     def on_offers_bids_response(self, data):
         matching_data = data.get("bids_offers")
@@ -45,10 +50,10 @@ class MycoMatcherBest(base_matcher):
         self.is_finished = True
 
     def on_matched_recommendations_response(self, data):
-        pass
+        logging.debug("Recommendation response: %s", data)
 
     def on_event_or_response(self, data):
-        logging.info("Event arrived %s", data)
+        logging.debug("Event arrived %s", data)
 
 
 matcher = MycoMatcherBest()
