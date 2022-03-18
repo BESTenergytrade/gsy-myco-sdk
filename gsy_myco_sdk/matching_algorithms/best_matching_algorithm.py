@@ -6,6 +6,7 @@ from gsy_framework.matching_algorithms import BaseMatchingAlgorithm, PayAsBidMat
 from market_wrapper import PayAsBidMatchingAlgorithm as PaB
 
 debug = False
+use_simply = True
 
 
 class BESTMatchingAlgorithm(BaseMatchingAlgorithm):
@@ -17,7 +18,7 @@ class BESTMatchingAlgorithm(BaseMatchingAlgorithm):
     @classmethod
     def get_matches_recommendations(
             cls, matching_data: Dict[str, Dict]) -> List[BidOfferMatch.serializable_dict]:
-        recommendations = []
+        gsy_match = []
         simply_match = []
         for market_id, time_slot_data in matching_data.items():
             for time_slot, data in time_slot_data.items():
@@ -34,17 +35,21 @@ class BESTMatchingAlgorithm(BaseMatchingAlgorithm):
                         "offers": offers_mapping.values()}}})
                 )
 
-                if debug:
+                if debug or not use_simply:
                     # GSY integrated Pay as Bid for comparison
-                    recommendations.extend(PayAsBidMatchingAlgorithm.get_matches_recommendations(
+                    gsy_match.extend(PayAsBidMatchingAlgorithm.get_matches_recommendations(
                         {market_id: {time_slot: {
                             "bids": bids_mapping.values(),
                             "offers": offers_mapping.values()}}})
                     )
 
+                if debug:
                     with open(f'PaB_{time_slot}_gsy.json', 'w') as f:
-                        json.dump(recommendations, f, indent=2)
+                        json.dump(gsy_match, f, indent=2)
                     with open(f'PaB_{time_slot}_simply.json', 'w') as f:
                         json.dump(simply_match, f, indent=2)
 
-        return simply_match
+        if use_simply:
+            return simply_match
+        else:
+            return gsy_match
