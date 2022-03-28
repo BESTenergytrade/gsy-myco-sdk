@@ -3,7 +3,9 @@ import json
 
 from gsy_framework.data_classes import BidOfferMatch
 from gsy_framework.matching_algorithms import BaseMatchingAlgorithm, PayAsBidMatchingAlgorithm
-from market_wrapper import PayAsBidMatchingAlgorithm as PaB
+from simply.market_wrapper import PayAsBidMatchingAlgorithm as PaB
+from simply.market_wrapper import PayAsClearMatchingAlgorithm as PaC
+from simply.market_wrapper import ClusterPayAsClearMatchingAlgorithm as CPaC
 
 debug = False
 use_simply = True
